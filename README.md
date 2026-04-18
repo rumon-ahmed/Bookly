@@ -33,16 +33,17 @@ This project was created as a university project to demonstrate front-end web de
 ## 👨‍💻 Team Members
 
 - Md Rumon Ahmed  
-- Mustakim Billah  
-- Joy Kormakar  
-- Sultan  
-- Rulin Rahman  
+- Mostakim Billah  
+- Joy Karmokar  
+- Sultan Mahamud
+- Rulin Rahman
+- Sumi 
 
 ---
 
 ## 📸 Preview
 
-![Bookly Preview](assets/images/preview.png)
+![Bookly Preview](images/preview.png)
 
 ---
 
