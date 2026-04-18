@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bookly — Modern Bookstore</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --indigo: #3730a3;
+    --indigo-dark: #1e1b4b;
+    --indigo-light: #e0e7ff;
+    --indigo-mid: #6366f1;
+    --slate: #475569;
+    --slate-light: #94a3b8;
+    --slate-pale: #f1f5f9;
+    --white: #ffffff;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --border: #e2e8f0;
+    --card-bg: #ffffff;
+    --radius: 14px;
+    --transition: 0.22s cubic-bezier(0.4,0,0.2,1);
+    --shadow-sm: 0 1px 3px rgba(15,23,42,0.08), 0 1px 2px rgba(15,23,42,0.04);
+    --shadow-md: 0 4px 16px rgba(15,23,42,0.10), 0 2px 6px rgba(15,23,42,0.06);
+    --shadow-lg: 0 20px 48px rgba(55,48,163,0.13), 0 8px 20px rgba(15,23,42,0.08);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--slate-pale);
+    color: var(--text-primary);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 64px;
+    display: flex; align-items: center;
+  }
+
+  .nav-inner {
+    max-width: 1200px; width: 100%; margin: 0 auto;
+    display: flex; align-items: center; gap: 1.5rem;
+  }
+
+  .nav-brand {
+    font-size: 1.35rem; font-weight: 700;
+    color: var(--indigo-dark); letter-spacing: -0.03em;
+    text-decoration: none; flex-shrink: 0;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .nav-brand-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--indigo-mid); display: inline-block;
+  }
+
+  .nav-links {
+    display: flex; gap: 0.25rem; list-style: none; flex-shrink: 0;
+  }
+
+  .nav-links a {
+    text-decoration: none; color: var(--text-secondary);
+    font-size: 0.92rem; font-weight: 500; padding: 6px 14px;
+    border-radius: 8px; transition: background var(--transition), color var(--transition);
+  }
+
+  .nav-links a:hover { background: var(--indigo-light); color: var(--indigo); }
+
+  .search-bar {
+    flex: 1; max-width: 380px;
+    display: flex; align-items: center;
+    background: var(--slate-pale); border: 1px solid var(--border);
+    border-radius: 10px; padding: 0 14px; gap: 8px;
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+
+  .search-bar:focus-within {
+    border-color: var(--indigo-mid);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+  }
+
+  .search-bar svg { color: var(--slate-light); flex-shrink: 0; }
+
+  .search-bar input {
+    border: none; background: transparent; outline: none;
+    font-size: 0.9rem; color: var(--text-primary); width: 100%;
+    padding: 9px 0;
+  }
+
+  .search-bar input::placeholder { color: var(--slate-light); }
+
+  .nav-cart {
+    position: relative; cursor: pointer;
+    background: var(--indigo); border: none;
+    color: white; width: 42px; height: 42px;
+    border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    transition: background var(--transition), transform var(--transition);
+    flex-shrink: 0;
+  }
+
+  .nav-cart:hover { background: var(--indigo-dark); transform: scale(1.04); }
+
+  .cart-badge {
+    position: absolute; top: -5px; right: -5px;
+    background: #f43f5e; color: white;
+    font-size: 0.68rem; font-weight: 700;
+    min-width: 18px; height: 18px;
+    border-radius: 9px; display: flex; align-items: center; justify-content: center;
+    padding: 0 4px; border: 2px solid white;
+    transition: transform 0.15s;
+  }
+
+  .cart-badge.bump { animation: bump 0.25s ease; }
+
+  @keyframes bump {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.4); }
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg, var(--indigo-dark) 0%, #312e81 50%, #1e1b4b 100%);
+    min-height: 88vh;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden; padding: 4rem 2rem;
+  }
+
+  .hero-orbs {
+    position: absolute; inset: 0; pointer-events: none;
+  }
+
+  .orb {
+    position: absolute; border-radius: 50%;
+    background: rgba(99,102,241,0.18);
+    filter: blur(60px);
+  }
+
+  .orb-1 { width: 480px; height: 480px; top: -120px; right: -80px; }
+  .orb-2 { width: 320px; height: 320px; bottom: -60px; left: 5%; }
+  .orb-3 { width: 200px; height: 200px; top: 40%; left: 40%; background: rgba(167,139,250,0.15); }
+
+  .hero-content {
+    max-width: 700px; text-align: center; position: relative; z-index: 2;
+  }
+
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+    color: #c7d2fe; font-size: 0.82rem; font-weight: 600;
+    padding: 6px 16px; border-radius: 99px; letter-spacing: 0.06em;
+    text-transform: uppercase; margin-bottom: 1.5rem;
+  }
+
+  .hero-eyebrow span { width: 6px; height: 6px; background: #818cf8; border-radius: 50%; }
+
+  .hero h1 {
+    font-size: clamp(2.4rem, 5.5vw, 4rem);
+    font-weight: 800; color: white;
+    line-height: 1.12; letter-spacing: -0.04em;
+    margin-bottom: 1.25rem;
+  }
+
+  .hero h1 em { font-style: normal; color: #a5b4fc; }
+
+  .hero-sub {
+    color: #a5b4fc; font-size: 1.08rem;
+    max-width: 480px; margin: 0 auto 2.5rem; line-height: 1.7;
+  }
+
+  .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+  .btn-primary {
+    background: white; color: var(--indigo-dark);
+    border: none; padding: 14px 32px;
+    border-radius: 12px; font-size: 0.96rem; font-weight: 700;
+    cursor: pointer; transition: transform var(--transition), box-shadow var(--transition);
+    text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+  }
+
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+
+  .btn-outline {
+    background: transparent; color: white;
+    border: 1.5px solid rgba(255,255,255,0.3);
+    padding: 14px 32px; border-radius: 12px;
+    font-size: 0.96rem; font-weight: 600;
+    cursor: pointer; transition: background var(--transition), border-color var(--transition);
+    text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+  }
+
+  .btn-outline:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.6); }
+
+  .hero-stats {
+    display: flex; gap: 2.5rem; justify-content: center;
+    margin-top: 3.5rem; padding-top: 2.5rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .stat { text-align: center; }
+  .stat-num { font-size: 1.6rem; font-weight: 800; color: white; }
+  .stat-label { font-size: 0.8rem; color: #818cf8; font-weight: 500; margin-top: 2px; }
+
+  /* ── SECTION SHELL ── */
+  section { padding: 5rem 2rem; }
+
+  .section-header {
+    text-align: center; margin-bottom: 3rem;
+  }
+
+  .section-tag {
+    display: inline-block; background: var(--indigo-light);
+    color: var(--indigo); font-size: 0.78rem; font-weight: 700;
+    padding: 5px 14px; border-radius: 99px; letter-spacing: 0.07em;
+    text-transform: uppercase; margin-bottom: 0.9rem;
+  }
+
+  .section-header h2 {
+    font-size: clamp(1.7rem, 3.5vw, 2.5rem);
+    font-weight: 800; letter-spacing: -0.03em;
+    color: var(--text-primary); margin-bottom: 0.6rem;
+  }
+
+  .section-header p {
+    color: var(--text-secondary); font-size: 1rem; max-width: 500px; margin: 0 auto;
+  }
+
+  /* ── CATEGORIES ── */
+  #categories { background: var(--white); }
+
+  .categories-grid {
+    max-width: 1200px; margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+  }
+
+  .category-chip {
+    background: var(--slate-pale); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1rem; text-align: center;
+    cursor: pointer; transition: all var(--transition);
+    font-size: 0.88rem; font-weight: 600; color: var(--text-secondary);
+  }
+
+  .category-chip:hover, .category-chip.active {
+    background: var(--indigo-light); border-color: #c7d2fe; color: var(--indigo);
+    transform: translateY(-2px);
+  }
+
+  .category-chip .cat-icon { font-size: 1.6rem; margin-bottom: 6px; }
+
+  /* ── BOOKS GRID ── */
+  #books { background: var(--slate-pale); }
+
+  .books-container { max-width: 1200px; margin: 0 auto; }
+
+  .books-toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;
+  }
+
+  .books-count {
+    font-size: 0.9rem; color: var(--text-secondary); font-weight: 500;
+  }
+
+  .books-count strong { color: var(--text-primary); }
+
+  .sort-select {
+    appearance: none; background: white; border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 36px 8px 14px; font-size: 0.88rem;
+    color: var(--text-primary); cursor: pointer; outline: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center;
+  }
+
+  .books-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5rem;
+  }
+
+  /* ── BOOK CARD ── */
+  .book-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+    transition: transform var(--transition), box-shadow var(--transition);
+    display: flex; flex-direction: column;
+  }
+
+  .book-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .book-cover {
+    position: relative; height: 220px; overflow: hidden;
+    background: var(--slate-pale);
+  }
+
+  .book-cover img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+
+  .book-card:hover .book-cover img { transform: scale(1.04); }
+
+  .book-badge {
+    position: absolute; top: 12px; left: 12px;
+    background: var(--indigo-mid); color: white;
+    font-size: 0.7rem; font-weight: 700; padding: 3px 10px;
+    border-radius: 6px; letter-spacing: 0.05em; text-transform: uppercase;
+  }
+
+  .book-badge.new { background: #10b981; }
+  .book-badge.sale { background: #f43f5e; }
+
+  .wishlist-btn {
+    position: absolute; top: 12px; right: 12px;
+    background: white; border: 1px solid var(--border);
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all var(--transition); color: var(--slate-light);
+  }
+
+  .wishlist-btn:hover { color: #f43f5e; border-color: #fecdd3; background: #fff1f2; }
+  .wishlist-btn.active { color: #f43f5e; border-color: #fecdd3; background: #fff1f2; }
+
+  .book-info { padding: 1rem 1.1rem 1.1rem; flex: 1; display: flex; flex-direction: column; }
+
+  .book-genre {
+    font-size: 0.72rem; font-weight: 700; color: var(--indigo-mid);
+    text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px;
+  }
+
+  .book-title {
+    font-size: 0.97rem; font-weight: 700; color: var(--text-primary);
+    margin-bottom: 2px; line-height: 1.35;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+
+  .book-author {
+    font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 10px;
+  }
+
+  .book-rating {
+    display: flex; align-items: center; gap: 6px; margin-bottom: 12px;
+  }
+
+  .stars { display: flex; gap: 2px; }
+
+  .star {
+    width: 13px; height: 13px;
+    clip-path: polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+    background: #e2e8f0;
+  }
+
+  .star.filled { background: #f59e0b; }
+  .star.half { background: linear-gradient(90deg, #f59e0b 50%, #e2e8f0 50%); }
+
+  .rating-count { font-size: 0.78rem; color: var(--slate-light); }
+
+  .book-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: auto; gap: 8px;
+  }
+
+  .price-block { display: flex; align-items: baseline; gap: 5px; }
+
+  .price { font-size: 1.15rem; font-weight: 800; color: var(--text-primary); }
+
+  .price-old {
+    font-size: 0.82rem; color: var(--slate-light);
+    text-decoration: line-through; font-weight: 400;
+  }
+
+  .add-cart-btn {
+    background: var(--indigo); color: white;
+    border: none; padding: 9px 18px;
+    border-radius: 9px; font-size: 0.84rem; font-weight: 600;
+    cursor: pointer; transition: all var(--transition);
+    display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+  }
+
+  .add-cart-btn:hover {
+    background: var(--indigo-dark);
+    transform: scale(1.04);
+  }
+
+  .add-cart-btn:active { transform: scale(0.97); }
+
+  .add-cart-btn.added {
+    background: #10b981;
+  }
+
+  /* ── NO RESULTS ── */
+  .no-results {
+    grid-column: 1/-1; text-align: center;
+    padding: 4rem 1rem; display: none;
+  }
+
+  .no-results.show { display: block; }
+
+  .no-results p { color: var(--text-secondary); font-size: 1rem; margin-top: 0.5rem; }
+
+  /* ── FEATURES ── */
+  #features { background: var(--white); }
+
+  .features-grid {
+    max-width: 1000px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .feature-card {
+    padding: 2rem; border-radius: var(--radius);
+    border: 1px solid var(--border); background: var(--slate-pale);
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+
+  .feature-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+
+  .feature-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    background: var(--indigo-light); display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1.25rem;
+  }
+
+  .feature-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .feature-card p { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.65; }
+
+  /* ── NEWSLETTER ── */
+  #newsletter {
+    background: linear-gradient(135deg, var(--indigo-dark), #312e81);
+    color: white;
+  }
+
+  .newsletter-inner {
+    max-width: 540px; margin: 0 auto; text-align: center;
+  }
+
+  #newsletter .section-tag { background: rgba(255,255,255,0.12); color: #c7d2fe; }
+  #newsletter h2 { color: white; }
+  #newsletter p { color: #a5b4fc; margin-bottom: 2rem; }
+
+  .newsletter-form {
+    display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center;
+  }
+
+  .newsletter-form input {
+    flex: 1; min-width: 220px;
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+    color: white; padding: 13px 18px; border-radius: 10px;
+    font-size: 0.92rem; outline: none;
+    transition: border-color var(--transition);
+  }
+
+  .newsletter-form input::placeholder { color: rgba(255,255,255,0.45); }
+
+  .newsletter-form input:focus { border-color: rgba(255,255,255,0.55); }
+
+  .newsletter-form button {
+    background: white; color: var(--indigo-dark);
+    border: none; padding: 13px 26px; border-radius: 10px;
+    font-weight: 700; font-size: 0.92rem; cursor: pointer;
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+
+  .newsletter-form button:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--indigo-dark); color: #a5b4fc;
+    padding: 3.5rem 2rem 2rem;
+  }
+
+  .footer-inner {
+    max-width: 1200px; margin: 0 auto;
+    display: grid; grid-template-columns: 2fr repeat(3, 1fr);
+    gap: 2.5rem; margin-bottom: 2.5rem;
+  }
+
+  .footer-brand h3 {
+    font-size: 1.3rem; font-weight: 800; color: white;
+    letter-spacing: -0.03em; margin-bottom: 0.75rem;
+  }
+
+  .footer-brand p { font-size: 0.87rem; line-height: 1.7; max-width: 260px; }
+
+  .social-links { display: flex; gap: 10px; margin-top: 1.25rem; }
+
+  .social-link {
+    width: 36px; height: 36px; border-radius: 9px;
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: center;
+    color: #a5b4fc; cursor: pointer; transition: all var(--transition);
+    text-decoration: none;
+  }
+
+  .social-link:hover { background: var(--indigo-mid); color: white; border-color: transparent; }
+
+  .footer-col h4 {
+    font-size: 0.88rem; font-weight: 700; color: white;
+    margin-bottom: 1rem; letter-spacing: 0.03em;
+  }
+
+  .footer-col ul { list-style: none; }
+
+  .footer-col ul li { margin-bottom: 0.55rem; }
+
+  .footer-col ul li a {
+    color: #a5b4fc; text-decoration: none; font-size: 0.87rem;
+    transition: color var(--transition);
+  }
+
+  .footer-col ul li a:hover { color: white; }
+
+  .footer-bottom {
+    max-width: 1200px; margin: 0 auto;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 1.5rem;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 0.75rem;
+  }
+
+  .footer-bottom p { font-size: 0.83rem; }
+
+  .footer-badges { display: flex; gap: 8px; }
+
+  .badge {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
+    padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;
+    color: #a5b4fc;
+  }
+
+  /* ── CART TOAST ── */
+  .toast {
+    position: fixed; bottom: 2rem; right: 2rem; z-index: 999;
+    background: var(--text-primary); color: white;
+    padding: 14px 20px; border-radius: 12px;
+    font-size: 0.88rem; font-weight: 500;
+    box-shadow: var(--shadow-lg);
+    transform: translateY(12px); opacity: 0;
+    transition: all 0.3s ease; pointer-events: none;
+    display: flex; align-items: center; gap: 10px;
+    max-width: 300px;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .footer-inner { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 680px) {
+    nav { padding: 0 1rem; }
+    .nav-links { display: none; }
+    .search-bar { max-width: unset; }
+
+    .hero { min-height: auto; padding: 4rem 1.25rem 3rem; }
+    .hero-stats { gap: 1.5rem; }
+
+    section { padding: 3.5rem 1.25rem; }
+
+    .footer-inner { grid-template-columns: 1fr; gap: 2rem; }
+    .footer-bottom { flex-direction: column; text-align: center; }
+
+    .books-toolbar { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-inner">
+    <a class="nav-brand" href="#home">
+      <span class="nav-brand-dot"></span>Bookly
+    </a>
+    <ul class="nav-links">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#categories">Categories</a></li>
+      <li><a href="#books">Books</a></li>
+      <li><a href="#features">Features</a></li>
+    </ul>
+    <div class="search-bar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" placeholder="Search books, authors…" autocomplete="off">
+    </div>
+    <button class="nav-cart" id="cartBtn" aria-label="Shopping cart">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      <span class="cart-badge" id="cartCount">0</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section id="home" class="hero">
+  <div class="hero-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-eyebrow"><span></span>New arrivals every week</div>
+    <h1>Where Great Stories<br><em>Find You</em></h1>
+    <p class="hero-sub">Discover timeless classics, contemporary bestsellers, and hidden gems — all curated for the modern reader.</p>
+    <div class="hero-actions">
+      <a href="#books" class="btn-primary">
+        Explore Collection
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <a href="#categories" class="btn-outline">Browse Categories</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">12K+</div><div class="stat-label">Books Available</div></div>
+      <div class="stat"><div class="stat-num">4.9★</div><div class="stat-label">Avg. Rating</div></div>
+      <div class="stat"><div class="stat-num">50K+</div><div class="stat-label">Happy Readers</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CATEGORIES ── -->
+<section id="categories">
+  <div class="section-header">
+    <div class="section-tag">Browse by genre</div>
+    <h2>Find Your Next Read</h2>
+    <p>From gripping thrillers to mind-bending science fiction — something for every mood.</p>
+  </div>
+  <div class="categories-grid">
+    <div class="category-chip active" data-filter="all"><div class="cat-icon">📚</div>All Books</div>
+    <div class="category-chip" data-filter="Fiction"><div class="cat-icon">✍️</div>Fiction</div>
+    <div class="category-chip" data-filter="Romance"><div class="cat-icon">💖</div>Romance</div>
+    <div class="category-chip" data-filter="Detective"><div class="cat-icon">🕵️</div>Detective
+</div>
+    <div class="category-chip" data-filter="Philosophical"><div class="cat-icon">💡</div>Philosophical</div>
+    <div class="category-chip" data-filter="Social"><div class="cat-icon">🌐</div>Social</div>
+    <div class="category-chip" data-filter="Nature"><div class="cat-icon">🌳</div>Nature</div>
+    
+  </div>
+</section>
+
+<!-- ── BOOKS ── -->
+<section id="books">
+  <div class="books-container">
+    <div class="section-header">
+      <div class="section-tag">Our collection</div>
+      <h2>Featured Books</h2>
+      <p>Handpicked titles that our readers love the most.</p>
+    </div>
+
+    <div class="books-toolbar">
+      <p class="books-count">Showing <strong id="visibleCount">12</strong> books</p>
+      <select class="sort-select" id="sortSelect">
+        <option value="default">Sort: Featured</option>
+        <option value="price-asc">Price: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+        <option value="rating">Highest Rated</option>
+      </select>
+    </div>
+
+    <div class="books-grid" id="booksGrid">
+
+      <!-- BOOK 1 -->
+      <div class="book-card" data-genre="Romance" data-price="14.99" data-rating="4.8" data-title="The Midnight Library">
+        <div class="book-cover">
+          <img src="C:\Users\USER\Downloads\bokstore\image\Shesher-Kabita.webp" alt="The Midnight Library" loading="lazy">
+          <span class="book-badge new">New</span>
+          <button class="wishlist-btn" aria-label="Wishlist"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        </div>
+        <div class="book-info">
+          <div class="book-genre">Romance</div>
+          <h3 class="book-title">Shesher Kabita</h3>
+          <p class="book-author">Rabindranath Tagore</p>
+          <div class="book-rating">
+            <div class="stars"><div class="star filled"></div><div class="star filled"></div><div class="star filled"></div><div class="star filled"></div><div class="star half"></div></div>
+            <span class="rating-count">4.8 (2,341)</span>
+          </div>
+          <div class="book-footer">
+            <div class="price-block"><span class="price">TK.1150</span><span class="price-old">TK.1500</span></div>
+            <button class="add-cart-btn" data-name="The Midnight Library"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOOK 2 -->
+      <div class="book-card" data-genre="Fiction" data-price="16.99" data-rating="4.9" data-title="Project Hail Mary">
+        <div class="book-cover">
+          <img src="C:\Users\USER\Downloads\bokstore\image\Himu-Humayun_Ahmed_(1993).jpg" alt="Project Hail Mary" loading="lazy">
+          <span class="book-badge">Bestseller</span>
+          <button class="wishlist-btn" aria-label="Wishlist"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        </div>
+        <div class="book-info">
+          <div class="book-genre">Fiction</div>
+          <h3 class="book-title">Himu Series</h3>
+          <p class="book-author">Humayun Ahmed</p>
+          <div class="book-rating">
+            <div class="stars"><div class="star filled"></div><div class="star filled"></div><div class="star filled"></div><div class="star filled"></div><div class="star filled"></div></div>
+            <span class="rating-count">4.9 (5,112)</span>
+          </div>
+          <div class="book-footer">
+            <div class="price-block"><span class="price">TK.1050</span><span class="price-old">TK.1200</span></div>
+            <button class="add-cart-btn" data-name="Project Hail Mary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOOK 3 -->
+      <div class="book-card" data-genre="Detective" data-price="18.99" data-rating="4.7" data-title="The Name of the Wind">
+        <div class="book-cover">
+          <img src="C:\Users\USER\Downloads\bokstore\image\Feluda_and_Topshe.jpg" alt="The Name of the Wind" loading="lazy">
+          <button class="wishlist-btn" aria-label="Wishlist"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        </div>
+        <div class="book-info">
+          <div class="book-genre">Detective</div>
+          <h3 class="book-title">Feluda Series</h3>
+          <p class="book-author">Satyajit Ray</p>
+          <div class="book-rating">
+            <div class="stars"><div class="star filled"></div><div class="star filled"></div><div class="star filled"></div><div class="star filled"></div><div class="star half"></div></div>
+            <span class="rating-count">4.7 (3,889)</span>
+          </div>
+          <div class="book-footer">
+            <div class="price-block"><span class="price">TK.999</span><span class="price-old">TK.1150</span></div>
+            <button class="add-cart-btn" data-name="The Name of the Wind"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOOK 4 -->
+      <div class="book-card" data-genre="Realism" data-price="13.99" data-rating="4.6" data-title="Atomic Habits">
+        <div class="book-cover">
+          <img src="C:\Users\USER\Downloads\bokstore\image\41719414.jpg" alt="Atomic Habits" loading="lazy">
+          <span class="book-badge">Bestseller</span>
+          <button class="wishlist-btn" aria-label="Wishlist"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        </div>
+        <div class="book-info">
+          <div class="book-genre">Realism</div>
+          <h3 class="book-title">Padma Nadir Majhi</h3>
+          <p class="book-author">Manik Bandyopadhyay</p>
+          <div class="book-rating">
+            <div class="stars"><div class="star filled"></div><div class="star filled"></div><div class="star filled"></div><div class="star filled"></div><div class="star half"></div></div>
+            <span class="rating-count">4.6 (8,204)</span>
+          </div>
+          <div class="book-footer">
+            <div class="price-block"><span class="price">TK.1000</span><span class="price-old">TK.1300</span></div>
+            <button class="add-cart-btn" data-name="Atomic Habits"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOOK 5 -->
+      <div class="book-card" data-genre="Philosophical" data-price="12.99" data-rating="4.5" data-title="The Silent Patient">
+        <div class="book-cover">
+          <img src="C:\Users\USER\Downloads\bokstore\image\Gora_(Novel)_Rabindranath_Tagore.jpg" alt="The Silent Patient" loading="lazy">
+          <span class="book-badge sale">Sale</span>
+          <button class="wishlist-btn" aria-label="Wishlist"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        </div>
+        <div class="book-info">
+          <div class="book-genre">Philosophical</div>
+          <h3 class="book-title">Gora</h3>
+          <p class="book-author">Rabindranath Tagore</p>
+          <div class="book-rating">
+            <div class="stars"><div class="star filled"></div><div class="star filled"></div><div class="star filled"></div><div class="star filled"></div><div class="star half"></div></div>
+            <span class="rating-count">4.5 (6,750)</span>
+          </div>
+          <div class="book-footer">
+            <div class="price-block"><span class="price">TK.990</span><span class="price-old">TK.1200</span></div>
+            <button class="add-cart-btn" data-name="The Silent Patient"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOOK 6 -->
+      <div class="book-card" data-genre="Detective Fiction" data-price="15.99" data-rating="4.7" data-title="Becoming">
+        <div class="book-cover">
+          <img src="C:\Users\USER\Downloads\bokstore\image\2426848.jpg" alt="Becoming" loading="lazy">
+          <button class="wishlist-btn" aria-label="Wishlist"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        </div>
+        <div class="book-info">
+          <div class="book-genre">Detective Fiction</div>
+          <h3 class="book-title">Byomkesh Bakshi</h3>
+          <p class="book-author">Sharadindu Bandyopadhyay</p>
+          <div class="book-rating">
+            <div class="stars"><div class="star filled"></div><div class="star filled"></div><div class="star filled"></div><div class="star filled"></div><div class="star half"></div></div>
+            <span class="rating-count">4.7 (9,031)</span>
+          </div>
+          <div class="book-footer">
+            <div class="price-block"><span class="price">TK.1000</span><span class="price-old">TK.1350</span></div>
+            <button class="add-cart-btn" data-name="Becoming"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOOK 7 -->
+      <div class="book-card" data-genre="Social" data-price="17.99" data-rating="4.8" data-title="Sapiens">
+        <div class="book-cover">
+          <img src="C:\Users\USER\Downloads\bokstore\image\Laalsalu-boighar-dot-in.jpg" alt="Sapiens" loading="lazy">
+          <span class="book-badge">Bestseller</span>
+          <button class="wishlist-btn" aria-label="Wishlist"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        </div>
+        <div class="book-info">
+          <div class="book-genre">Social</div>
+          <h3 class="book-title">Lalsalu</h3>
+          <p class="book-author">Critique Syed Waliullah</p>
+          <div class="book-rating">
+            <div class="stars"><div class="star filled"></div><div class="star filled"></div><div class="star filled"></div><div class="star filled"></div><div class="star filled"></div></div>
+            <span class="rating-count">4.8 (12,400)</span>
+          </div>
+          <div class="book-footer">
+            <div class="price-block"><span class="price">TK.1050</span><span class="price-old">TK.1300</span></div>
+            <button class="add-cart-btn" data-name="Sapiens"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOOK 8 -->
+      <div class="book-card" data-genre="Nature" data-price="11.99" data-rating="4.4" data-title="The Alchemist">
+        <div class="book-cover">
+          <img src="C:\Users\USER\Downloads\bokstore\image\62196857.jpg" alt="The Alchemist" loading="lazy">
+          <span class="book-badge new">New</span>
+          <button class="wishlist-btn" aria-label="Wishlist"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        </div>
+        <div class="book-info">
+          <div class="book-genre">Nature</div>
+          <h3 class="book-title">Aranyak</h3>
+          <p class="book-author">Bibhutibhushan Bandyopadhyay</p>
+          <div class="book-rating">
+            <div class="stars"><div class="star filled"></div><div class="star filled"></div><div class="star filled"></div><div class="star filled"></div><div class="star"></div></div>
+            <span class="rating-count">4.4 (7,200)</span>
+          </div>
+          <div class="book-footer">
+            <div class="price-block"><span class="price">TK.1000</span><span class="price-old">TK.1200</span></div>
+            <button class="add-cart-btn" data-name="The Alchemist"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOOK 9 -->
+      <div class="book-card" data-genre="Psychological Realism" data-price="15.49" data-rating="4.6" data-title="Dune">
+        <div class="book-cover">
+          <img src="C:\Users\USER\Downloads\bokstore\image\61azRpl0u3L._AC_UF1000,1000_QL80_.jpg" alt="Dune" loading="lazy">
+          <button class="wishlist-btn" aria-label="Wishlist"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        </div>
+        <div class="book-info">
+          <div class="book-genre">Psychological Realism</div>
+          <h3 class="book-title">Putul Nacher Itikatha</h3>
+          <p class="book-author">Manik Bandyopadhyay</p>
+          <div class="book-rating">
+            <div class="stars"><div class="star filled"></div><div class="star filled"></div><div class="star filled"></div><div class="star filled"></div><div class="star half"></div></div>
+            <span class="rating-count">4.6 (4,530)</span>
+          </div>
+          <div class="book-footer">
+            <div class="price-block"><span class="price">TK.999</span><span class="price-old">TK.1200</span></div>
+            <button class="add-cart-btn" data-name="Dune"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOOK 10 -->
+      <div class="book-card" data-genre="Romance" data-price="13.49" data-rating="4.5" data-title="Gone Girl">
+        <div class="book-cover">
+          <img src="C:\Users\USER\Downloads\bokstore\image\image.webp" alt="Gone Girl" loading="lazy">
+          <span class="book-badge sale">Sale</span>
+          <button class="wishlist-btn" aria-label="Wishlist"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        </div>
+        <div class="book-info">
+          <div class="book-genre">Romance</div>
+          <h3 class="book-title">Tithidore</h3>
+          <p class="book-author">Buddhadeb Bose</p>
+          <div class="book-rating">
+            <div class="stars"><div class="star filled"></div><div class="star filled"></div><div class="star filled"></div><div class="star filled"></div><div class="star half"></div></div>
+            <span class="rating-count">4.5 (5,678)</span>
+          </div>
+          <div class="book-footer">
+            <div class="price-block"><span class="price">TK.1050</span><span class="price-old">TK.1200</span></div>
+            <button class="add-cart-btn" data-name="Gone Girl"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOOK 11 -->
+      <div class="book-card" data-genre="Social Reform" data-price="19.99" data-rating="4.9" data-title="The Way of Kings">
+        <div class="book-cover">
+          <img src="C:\Users\USER\Downloads\bokstore\image\144637296.jpg"loading="lazy">
+          <span class="book-badge">Epic</span>
+          <button class="wishlist-btn" aria-label="Wishlist"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        </div>
+        <div class="book-info">
+          <div class="book-genre"> Social Reform</div>
+          <h3 class="book-title">Pratham Pratishruti</h3>
+          <p class="book-author">Ashapurna Devi</p>
+          <div class="book-rating">
+            <div class="stars"><div class="star filled"></div><div class="star filled"></div><div class="star filled"></div><div class="star filled"></div><div class="star filled"></div></div>
+            <span class="rating-count">4.9 (3,210)</span>
+          </div>
+          <div class="book-footer">
+            <div class="price-block"><span class="price">TK.800</span><span class="price-old">TK.1000</span></div>
+            <button class="add-cart-btn" data-name="bangla"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOOK 12 -->
+      <div class="book-card" data-genre="Romance" data-price="14.49" data-rating="4.5" data-title="Deep Work">
+        <div class="book-cover">
+          <img src="C:\Users\USER\Downloads\bokstore\image\8nKsTAlMuiIsVY8E8eUk0HVs9q1Crr0XFir40tLg.webp" alt="Deep Work" loading="lazy">
+          <span class="book-badge new">New</span>
+          <button class="wishlist-btn" aria-label="Wishlist"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        </div>
+        <div class="book-info">
+          <div class="book-genre">Romance</div>
+          <h3 class="book-title">Kalbela</h3>
+          <p class="book-author">Samaresh Majumdar</p>
+          <div class="book-rating">
+            <div class="stars"><div class="star filled"></div><div class="star filled"></div><div class="star filled"></div><div class="star filled"></div><div class="star half"></div></div>
+            <span class="rating-count">4.5 (4,980)</span>
+          </div>
+          <div class="book-footer">
+            <div class="price-block"><span class="price">TK.990</span><span class="price-old">TK.1150</span></div>
+            <button class="add-cart-btn" data-name="Deep Work"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="no-results" id="noResults">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 12px;display:block;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <strong style="font-size:1.05rem;display:block;margin-bottom:4px;">No books found</strong>
+        <p>Try a different search term or category.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURES ── -->
+<section id="features">
+  <div class="section-header">
+    <div class="section-tag">Why Bookly</div>
+    <h2>Built for Book Lovers</h2>
+    <p>We've crafted every detail to make your reading journey exceptional.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h2l4 4v5h-6V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      </div>
+      <h3>Fast Delivery</h3>
+      <p>Same-day dispatch on orders before 2 PM. Free standard shipping on all orders over $35 — delivered in 2–4 business days.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      </div>
+      <h3>Secure Payment</h3>
+      <p>256-bit SSL encryption, PCI DSS compliance, and support for all major cards, PayPal, and Apple Pay. Your data stays safe.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <h3>Best Quality</h3>
+      <p>Every book is sourced directly from publishers. First editions, signed copies, and premium hardcovers curated by our editors.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <h3>Expert Recommendations</h3>
+      <p>Our in-house reading team reviews every title. Get personalised picks based on your reading history and wishlist.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      </div>
+      <h3>Easy Returns</h3>
+      <p>Changed your mind? No worries. Hassle-free 30-day returns on all physical books — no questions asked.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <h3>24/7 Support</h3>
+      <p>Real humans, not bots. Our support team is available around the clock to help with orders, tracking, and recommendations.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── NEWSLETTER ── -->
+<section id="newsletter">
+  <div class="newsletter-inner">
+    <div class="section-tag">Stay in the loop</div>
+    <h2>Get Weekly Book Picks</h2>
+    <p>Join 50,000+ readers who receive our curated reading list, exclusive discounts, and author spotlights every Thursday.</p>
+    <div class="newsletter-form">
+      <input type="email" placeholder="Enter your email address…">
+      <button type="button">Subscribe Free</button>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <h3>Bookly</h3>
+      <p>A modern bookstore experience for discerning readers. Discover stories that last a lifetime.</p>
+      <div class="social-links">
+        <a class="social-link" href="#" aria-label="Twitter">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>
+        </a>
+        <a class="social-link" href="#" aria-label="Instagram">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </a>
+        <a class="social-link" href="#" aria-label="Facebook">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        </a>
+        <a class="social-link" href="#" aria-label="YouTube">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <ul>
+        <li><a href="#">New Arrivals</a></li>
+        <li><a href="#">Bestsellers</a></li>
+        <li><a href="#">Award Winners</a></li>
+        <li><a href="#">Staff Picks</a></li>
+        <li><a href="#">Gift Cards</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#">About Bookly</a></li>
+        <li><a href="#">Our Story</a></li>
+        <li><a href="#">Press</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Help</h4>
+      <ul>
+        <li><a href="#">FAQs</a></li>
+        <li><a href="#">Shipping Policy</a></li>
+        <li><a href="#">Returns</a></li>
+        <li><a href="#">Track Order</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 Bookly Books. All rights reserved.</p>
+    <div class="footer-badges">
+      <span class="badge">SSL Secured</span>
+      <span class="badge">PCI Compliant</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toastMsg">Added to cart!</span>
+</div>
+
+<script>
+  let cartCount = 0;
+  let activeFilter = 'all';
+  let activeSearch = '';
+  let toastTimer;
+
+  const cartBadge = document.getElementById('cartCount');
+  const toast = document.getElementById('toast');
+  const toastMsg = document.getElementById('toastMsg');
+  const searchInput = document.getElementById('searchInput');
+  const booksGrid = document.getElementById('booksGrid');
+  const noResults = document.getElementById('noResults');
+  const visibleCount = document.getElementById('visibleCount');
+  const sortSelect = document.getElementById('sortSelect');
+
+  function updateCart(name) {
+    cartCount++;
+    cartBadge.textContent = cartCount;
+    cartBadge.classList.remove('bump');
+    void cartBadge.offsetWidth;
+    cartBadge.classList.add('bump');
+
+    toastMsg.textContent = `"${name}" added to cart`;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
+  }
+
+  document.getElementById('booksGrid').addEventListener('click', e => {
+    const btn = e.target.closest('.add-cart-btn');
+    if (btn) {
+      const name = btn.dataset.name;
+      updateCart(name);
+      btn.classList.add('added');
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Added';
+      setTimeout(() => { btn.innerHTML = orig; btn.classList.remove('added'); }, 1800);
+    }
+
+    const wb = e.target.closest('.wishlist-btn');
+    if (wb) wb.classList.toggle('active');
+  });
+
+  function filterBooks() {
+    const cards = [...booksGrid.querySelectorAll('.book-card')];
+    let count = 0;
+    cards.forEach(card => {
+      const genre = card.dataset.genre;
+      const title = card.dataset.title.toLowerCase();
+      const author = card.querySelector('.book-author').textContent.toLowerCase();
+      const matchFilter = activeFilter === 'all' || genre === activeFilter;
+      const matchSearch = !activeSearch || title.includes(activeSearch) || author.includes(activeSearch);
+      const show = matchFilter && matchSearch;
+      card.style.display = show ? '' : 'none';
+      if (show) count++;
+    });
+    visibleCount.textContent = count;
+    noResults.classList.toggle('show', count === 0);
+  }
+
+  searchInput.addEventListener('input', e => {
+    activeSearch = e.target.value.toLowerCase().trim();
+    filterBooks();
+  });
+
+  document.querySelectorAll('.category-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      activeFilter = chip.dataset.filter;
+      filterBooks();
+    });
+  });
+
+  sortSelect.addEventListener('change', () => {
+    const cards = [...booksGrid.querySelectorAll('.book-card')];
+    const val = sortSelect.value;
+    cards.sort((a, b) => {
+      if (val === 'price-asc') return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
+      if (val === 'price-desc') return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
+      if (val === 'rating') return parseFloat(b.dataset.rating) - parseFloat(a.dataset.rating);
+      return 0;
+    });
+    cards.forEach(c => booksGrid.insertBefore(c, noResults));
+  });
+
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+    });
+  });
+
+  document.querySelector('.newsletter-form button').addEventListener('click', function() {
+    const input = this.previousElementSibling;
+    if (input.value && input.value.includes('@')) {
+      this.textContent = 'Subscribed!';
+      this.style.background = '#10b981';
+      this.style.color = 'white';
+      input.value = '';
+      setTimeout(() => {
+        this.textContent = 'Subscribe Free';
+        this.style.background = '';
+        this.style.color = '';
+      }, 3000);
+    }
+  });
+</script>
+</body>
+</html>
