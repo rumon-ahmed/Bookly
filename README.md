@@ -43,7 +43,7 @@ This project was created as a university project to demonstrate front-end web de
 
 ## 📸 Preview
 
-![Bookly Preview](images/preview.png)
+![Bookly Preview](image/preview.png)
 
 ---
 
